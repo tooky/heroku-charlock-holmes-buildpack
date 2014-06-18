@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -e
+
+function indent() {
+  c='s/^/ /'
+  case $(uname) in
+    Darwin) sed -l "$c";;
+    *) sed -u "$c";;
+  esac
+}
+
+echo "-----> Install icu"
+
+BUILD_DIR=$1
+VENDOR_DIR="vendor"
+ICU4C_URL='https://dl.dropboxusercontent.com/u/41915/icu4c-53_1-bin.tar.gz'
+ICU4C_VENDOR_PATH='binaries/libicu'
+
+cd $BUILD_DIR
+echo Vendoring $ICU4C_URL | indent
+curl -L --silent $ICU4C_URL | tar xz
+
+echo Exporting libary paths
+PROFILE_PATH="${BUILD_DIR}/.profile.d/libicu.sh"
+mkdir -p $(dirname $PROFILE_PATH)
+echo 'export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:vendor/binaries/libicu"' >> $PROFILE_PATH
+echo 'export BUNDLE_BUILD__CHARLOCK_HOLMES=vendor/binaries/libicu' >> $PROFILE_PATH
